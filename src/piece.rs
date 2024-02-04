@@ -52,10 +52,7 @@ impl Piece {
     }
 
     pub fn empty(&self) -> bool {
-        match self {
-            Empty => true,
-            _ => false,
-        }
+        matches!(self, Empty)
     }
 }
 

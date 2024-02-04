@@ -140,7 +140,7 @@ impl ChessGame {
                 _ => {}
             }
         }
-        return false;
+        false
     }
     
     // can the given piece be attacked
@@ -158,27 +158,22 @@ impl ChessGame {
         // this piece is a pawn, the last move was this pawn with a 2 step move
         // there is an attacker's pawn to the left or right
         if matches!(piece.piece, Pawn(_, _)) {
-            if let Some(act) = self.moves.last() {
-                match act {
-                    AMove(m) => {
-                        if m.piece == piece.piece && (m.from.row - m.to.row).abs() == 2 {
-                            if coord.col > 0 {
-                                let coord_adj = coord + (0, -1).into();
-                                let adj = self.board.get(coord_adj);
-                                if matches!(adj, Pawn(_, _)) && adj.owned_by(attacker) {
-                                    return true;
-                                }
-                            }
-                            if coord.col < 7 {
-                                let coord_adj = coord + (0, 1).into();
-                                let adj = self.board.get(coord_adj);
-                                if matches!(adj, Pawn(_, _)) && adj.owned_by(attacker) {
-                                    return true;
-                                }
-                            }
+            if let Some(AMove(m)) = self.moves.last() {
+                if m.piece == piece.piece && (m.from.row - m.to.row).abs() == 2 {
+                    if coord.col > 0 {
+                        let coord_adj = coord + (0, -1).into();
+                        let adj = self.board.get(coord_adj);
+                        if matches!(adj, Pawn(_, _)) && adj.owned_by(attacker) {
+                            return true;
                         }
                     }
-                    _ => {}
+                    if coord.col < 7 {
+                        let coord_adj = coord + (0, 1).into();
+                        let adj = self.board.get(coord_adj);
+                        if matches!(adj, Pawn(_, _)) && adj.owned_by(attacker) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -202,7 +197,7 @@ impl ChessGame {
                         return true;
                     }
                 }
-                return false;
+                false
             });
 
         if check { return true };
@@ -364,15 +359,11 @@ impl ChessGame {
             let adj = self.board.get(coord_adj);
             let dest = self.board.get(coord_dest);
             if adj.owned_by(owner.toggle()) && dest.empty() {
-                let last_move = self.moves.last().unwrap();
                 // last move was a pawn that moved to the adjacent square and moved two spaces
-                match last_move {
-                    AMove(m) => {
-                        if matches!(m.piece, Pawn(_, _)) && m.to == coord_adj && (m.from.row - m.to.row).abs() == 2 {
-                            moves.push(APassant(Passant::new(orig.piece, adj, coord, coord_dest, coord_adj)));
-                        }
+                if let Some(AMove(m)) = self.moves.last() {
+                    if matches!(m.piece, Pawn(_, _)) && m.to == coord_adj && (m.from.row - m.to.row).abs() == 2 {
+                        moves.push(APassant(Passant::new(orig.piece, adj, coord, coord_dest, coord_adj)));
                     }
-                    _ => {}
                 }
             }
         }
@@ -382,15 +373,11 @@ impl ChessGame {
             let adj = self.board.get(coord_adj);
             let dest = self.board.get(coord_dest);
             if adj.owned_by(owner.toggle()) && dest.empty() {
-                let last_move = self.moves.last().unwrap();
                 // last move was a pawn that moved to the adjacent square and moved two spaces
-                match last_move {
-                    AMove(m) => {
-                        if matches!(m.piece, Pawn(_, _)) && m.to == coord_adj && (m.from.row - m.to.row).abs() == 2 {
-                            moves.push(APassant(Passant::new(orig.piece, adj, coord, coord_dest, coord_adj)));
-                        }
+                if let Some(AMove(m)) = self.moves.last() {
+                    if matches!(m.piece, Pawn(_, _)) && m.to == coord_adj && (m.from.row - m.to.row).abs() == 2 {
+                        moves.push(APassant(Passant::new(orig.piece, adj, coord, coord_dest, coord_adj)));
                     }
-                    _ => {}
                 }
             }
         }
@@ -620,46 +607,44 @@ impl ChessGame {
     
     fn check_state(&self) -> Option<FinalState> {
         let acts = self.possible_moves(self.turn);
-        if acts.len() == 0 {
+        if acts.is_empty() {
             if self.in_check(self.turn) {
                 return Some(Win(self.turn.toggle()));
             } else {
                 return Some(Draw);
             }
-        } else {
-            if self.moves.len() >= 50 {
-                // I imagine this could be better
-                let mut uninteresting = true;
-                for act in &self.moves[self.moves.len()-50..] {
-                    match act {
-                        ATake(_) => {
-                            uninteresting = false;
-                            break;
-                        }
-                        APromoteTake(_) => {
-                            uninteresting = false;
-                            break;
-                        }
-                        APromote(_) => {
-                            uninteresting = false;
-                            break;
-                        }
-                        APassant(_) => {
-                            uninteresting = false;
-                            break;
-                        }
-                        AMove(m) => {
-                            if matches!(m.piece, Pawn(_, _)) {
-                                uninteresting = false;
-                                break;
-                            }
-                        }
-                        _ => {}
+        } else if self.moves.len() >= 50 {
+            // I imagine this could be better
+            let mut uninteresting = true;
+            for act in &self.moves[self.moves.len()-50..] {
+                match act {
+                    ATake(_) => {
+                        uninteresting = false;
+                        break;
                     }
+                    APromoteTake(_) => {
+                        uninteresting = false;
+                        break;
+                    }
+                    APromote(_) => {
+                        uninteresting = false;
+                        break;
+                    }
+                    APassant(_) => {
+                        uninteresting = false;
+                        break;
+                    }
+                    AMove(m) => {
+                        if matches!(m.piece, Pawn(_, _)) {
+                            uninteresting = false;
+                            break;
+                        }
+                    }
+                    _ => {}
                 }
-                if uninteresting {
-                    return Some(Draw)
-                }
+            }
+            if uninteresting {
+                return Some(Draw)
             }
         }
         None
@@ -705,6 +690,12 @@ impl Display for ChessGame {
     }
 }
 
+impl Default for ChessGame {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub fn play_game(black_player: &dyn Fn(&ChessGame) -> Option<Action>, white_player: &dyn Fn(&ChessGame) -> Option<Action>) -> FinalState {
     let mut game = ChessGame::new();
     let mut active = white_player;
@@ -713,15 +704,13 @@ pub fn play_game(black_player: &dyn Fn(&ChessGame) -> Option<Action>, white_play
         println!("{}", game);
         if let Some(state) = game.check_state() {
             return state;
+        } else if let Some(act) = active(&game) {
+            println!("{:?} chose: {:?}", game.turn, act);
+            game = game.step(act);
+            (active, inactive) = (inactive, active);
         } else {
-            if let Some(act) = active(&game) {
-                println!("{:?} chose: {:?}", game.turn, act);
-                game = game.step(act);
-                (active, inactive) = (inactive, active);
-            } else {
-                println!("Couldn't make a move, but couldn't determine that ahead of time for some reason");
-                return Draw;
-            }
+            println!("Couldn't make a move, but couldn't determine that ahead of time for some reason");
+            return Draw;
         }
     }
 }

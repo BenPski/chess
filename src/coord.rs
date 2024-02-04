@@ -12,11 +12,11 @@ impl Coord {
     }
 
     pub fn all_coords() -> impl Iterator<Item=Coord> {
-        (0..8).map(|row| {
+        (0..8).flat_map(|row| {
             (0..8).map(move |col| {
                 Self::new(row, col)
             })
-        }).flatten()
+        })
     }
 
 }
