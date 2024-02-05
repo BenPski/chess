@@ -1,4 +1,4 @@
-use std::ops;
+use std::{ops, cmp::max};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Coord {
@@ -17,6 +17,19 @@ impl Coord {
                 Self::new(row, col)
             })
         })
+    }
+
+    // manhattan distance
+    pub fn man_dist(&self, other: Coord) -> i32 {
+        (self.row - other.row).abs() + (self.col - other.col).abs()
+    }
+
+    pub fn cheb_dist(&self, other: Coord) -> i32 {
+        max(self.row - other.row, self.col - other.col)
+    }
+
+    pub fn dist(&self, other: Coord) -> f32 {
+        (((self.row - other.row).pow(2) + (self.col - other.col).pow(2)) as f32).sqrt()
     }
 
 }
