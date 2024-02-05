@@ -54,14 +54,14 @@ impl ChessBoard {
         self.board[((8*coord.row)+(coord.col)) as usize] = p;
     }
 
-    fn pieces(&self) -> Vec<PieceData> {
+    pub fn pieces(&self) -> Vec<PieceData> {
         Coord::all_coords().map(|coord| {
             let piece = self.get(coord);
             PieceData::new(piece, coord)
         }).collect()
     }
 
-    fn pieces_for(&self, player: Player) -> Vec<PieceData> {
+    pub fn pieces_for(&self, player: Player) -> Vec<PieceData> {
         self.pieces().into_iter()
             .filter(|p| {
                 p.piece.owner().map_or(false, |x| x == player)
@@ -137,7 +137,26 @@ impl ChessGame {
                         return true;
                     }
                 }
-                _ => {}
+                ATake(m) => {
+                    if m.piece == piece {
+                        return true;
+                    }
+                }
+                APromote(m) => {
+                    if m.piece == piece || m.end == piece {
+                        return true;
+                    }
+                }
+                APromoteTake(m) => {
+                    if m.piece == piece || m.end == piece {
+                        return true;
+                    }
+                }
+                APassant(m) => {
+                    if m.piece == piece {
+                        return true;
+                    }
+                }
             }
         }
         false

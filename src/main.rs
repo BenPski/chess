@@ -1,5 +1,5 @@
 use chess::game::play_game;
-use chess::strategy::random_player;
+use chess::strategy::*;
 
 
 
@@ -37,7 +37,7 @@ fn main() {
     //}
     */
      
-    let state = play_game(&random_player, &random_player);
+    let state = play_game(&equal_opportunity, &random_player);
     println!("Final state: {:?}", state);
     
 }
