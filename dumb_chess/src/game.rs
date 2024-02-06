@@ -10,7 +10,7 @@ use Action::*;
 use Piece::*;
 use FinalState::*;
 
-use crate::{action, coord, final_state, piece, player};
+use crate::{action, coord, final_state, piece, player, strategy::Strategy};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChessBoard {
@@ -610,7 +610,12 @@ impl ChessGame {
             .filter(|x| matches!(x.piece, King(_, _))).collect::<Vec<_>>();
         match kings.len() {
             1 => self.can_attack(kings[0], player.toggle()),
-            0 => panic!("There are no kings somehow"),
+            0 => {
+                //panic!("There are no kings somehow"),
+                // gets into this state when looking ahead really far
+                // so in a sense yes they are in check, they were beat
+                true
+            }
             _ => panic!("There is more than 1 king somehow"),
         }
     }
@@ -624,7 +629,7 @@ impl ChessGame {
     // winning means the player has no moves and is in check -> opponent wins
     // this is intended to be used after stepping as a check
     
-    fn check_state(&self) -> Option<FinalState> {
+    pub fn check_state(&self) -> Option<FinalState> {
         let acts = self.possible_moves(self.turn);
         if acts.is_empty() {
             if self.in_check(self.turn) {
@@ -715,18 +720,21 @@ impl Default for ChessGame {
     }
 }
 
-pub fn play_game(black_player: &dyn Fn(&ChessGame) -> Option<Action>, white_player: &dyn Fn(&ChessGame) -> Option<Action>) -> FinalState {
+pub fn play_game(black_player: Strategy, white_player: Strategy) -> FinalState {
     let mut game = ChessGame::new();
-    let mut active = white_player;
-    let mut inactive = black_player;
+    let mut white_turn = true;
     loop {
         println!("{}", game);
         if let Some(state) = game.check_state() {
             return state;
-        } else if let Some(act) = active(&game) {
+        } else if let Some(act) = if white_turn {
+            white_player.run(&game)
+        } else {
+            black_player.run(&game)
+        } {
+            white_turn = !white_turn;
             println!("{:?} chose: {:?}", game.turn, act);
             game = game.step(act);
-            (active, inactive) = (inactive, active);
         } else {
             println!("Couldn't make a move, but couldn't determine that ahead of time for some reason");
             return Draw;

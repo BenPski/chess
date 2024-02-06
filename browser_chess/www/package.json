@@ -1,0 +1,32 @@
+{
+  "name": "dumb_chess",
+  "version": "0.1.0",
+  "description": "Play chess with some silly algorithms",
+  "main": "index.js",
+  "bin": {
+    "create-wasm-app": ".bin/create-wasm-app.js"
+  },
+  "scripts": {
+    "build": "webpack",
+    "serve": "webpack serve"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "rust",
+    "webpack"
+  ],
+  "author": "benpski",
+  "license": "MIT",
+  "dependencies": {
+    "browser_chess": "file:../pkg"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "1.5.0",
+    "html-webpack-plugin": "^5.3.2",
+    "text-encoding": "^0.7.0",
+    "webpack": "^5.49.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.15.1"
+  }
+}

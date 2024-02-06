@@ -1,3 +1,4 @@
+#[wasm_bindgen]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Player {
     White,
@@ -5,6 +6,7 @@ pub enum Player {
 }
 
 use Player::*;
+use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::coord::Coord;
 
