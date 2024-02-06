@@ -55,7 +55,7 @@ fn main() {
     if cli.list {
         println!("Available strategies:");
         for s in all::<Strategy>() {
-            println!("{}", s.name());
+            println!("{} - {}", s.name(), s.description());
         }
     } else {
         let white = cli.white_player;
