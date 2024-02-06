@@ -1,6 +1,7 @@
-use chess::game::play_game;
-use chess::strategy::*;
+use dumb_chess::game::play_game;
+use dumb_chess::strategy::*;
 
+use Strategy::*;
 
 
 fn main() {
@@ -37,7 +38,7 @@ fn main() {
     //}
     */
      
-    let state = play_game(&equal_opportunity, &random_player);
+    let state = play_game(Random, Swarm);
     println!("Final state: {:?}", state);
     
 }

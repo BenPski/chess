@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hello wasm-pack!</title>
+<style>
+.flex-container {
+    display: flex;
+}
+.flex-container > div {
+    padding: 1em;
+}
+
+.board {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+</style>
+  </head>
+  <body>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <div class="flex-container">
+        <div>
+            <canvas class="board" id="canvas"></canvas>
+        </div>
+        <div>
+            White Player: <select id="white"></select>
+            <br>
+            Black Player: <select id="black"></select>
+            <br>
+            <button id="play_stop">Play/Stop</button>
+            <button id="reset">Reset</button>
+            <br>
+            Speed: <input type="range" min="1" max="100" value="10" id="speed">
+            <br>
+            <p id="status">Game State</p>
+        </div>
+    </div>
+    <div class="flex-container" id="descriptions">
+    </div>
+        <script src="./bootstrap.js"></script>
+  </body>
+</html>

@@ -112,18 +112,18 @@ impl Display for Piece {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Empty => write!(f, " "),
-            Self::Pawn(_,White)   => write!(f, "♟︎"),
-            Self::Pawn(_,Black)   => write!(f, "♙"),
-            Self::Rook(_,White)   => write!(f, "♜"),
-            Self::Rook(_,Black)   => write!(f, "♖"),
-            Self::Knight(_,White) => write!(f, "♞"),
-            Self::Knight(_,Black) => write!(f, "♘"),
-            Self::Bishop(_,White) => write!(f, "♝"),
-            Self::Bishop(_,Black) => write!(f, "♗"),
-            Self::Queen(_,White)  => write!(f, "♛"),
-            Self::Queen(_,Black)  => write!(f, "♕"),
-            Self::King(_,White)   => write!(f, "♚"),
-            Self::King(_,Black)   => write!(f, "♔"),
+            Self::Pawn(_,Black)   => write!(f, "♟︎"),
+            Self::Pawn(_,White)   => write!(f, "♙"),
+            Self::Rook(_,Black)   => write!(f, "♜"),
+            Self::Rook(_,White)   => write!(f, "♖"),
+            Self::Knight(_,Black) => write!(f, "♞"),
+            Self::Knight(_,White) => write!(f, "♘"),
+            Self::Bishop(_,Black) => write!(f, "♝"),
+            Self::Bishop(_,White) => write!(f, "♗"),
+            Self::Queen(_,Black)  => write!(f, "♛"),
+            Self::Queen(_,White)  => write!(f, "♕"),
+            Self::King(_,Black)   => write!(f, "♚"),
+            Self::King(_,White)   => write!(f, "♔"),
         }
     }
 }
