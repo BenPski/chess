@@ -1,7 +1,19 @@
+use clap::Parser;
 use dumb_chess::game::play_game;
 use dumb_chess::strategy::*;
 
-use Strategy::*;
+use enum_iterator::all;
+
+#[derive(Parser)]
+#[command(author, version, about)]
+struct Cli {
+    #[arg(short, long, default_value="Random")]
+    white_player: String,
+    #[arg(short, long, default_value="Random")]
+    black_player: String,
+    #[arg(short, long)]
+    list: bool
+}
 
 
 fn main() {
@@ -37,8 +49,27 @@ fn main() {
     //    println!("{:?}", m);
     //}
     */
-     
-    let state = play_game(Random, Swarm);
-    println!("Final state: {:?}", state);
     
+    let cli = Cli::parse();
+    
+    if cli.list {
+        println!("Available strategies:");
+        for s in all::<Strategy>() {
+            println!("{}", s.name());
+        }
+    } else {
+        let white = cli.white_player;
+        let black = cli.black_player;
+
+        if let (Some(white_strat), Some(black_strat)) = (strategy_map().get(&white), strategy_map().get(&black)) {
+            let state = play_game(*black_strat, *white_strat);
+            println!("Final state: {:?}", state);
+        } else {
+            println!("Could not find one of the given strategies: {} + {}", white, black);
+            println!("Options for strategies are:");
+            for s in all::<Strategy>() {
+                println!("{}", s.name());
+            }
+        }
+    }
 }
