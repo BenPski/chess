@@ -1,12 +1,12 @@
 mod utils;
 
-use js_sys::JsString;
+
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_test::console_log;
-use std::{f64, cell::RefCell, rc::Rc};
+
+use std::{f64};
 use enum_iterator::all;
 
-use dumb_chess::{strategy::{*, self}, game::ChessGame, action::Action, player::Player, final_state::FinalState};
+use dumb_chess::{strategy::{*}, game::ChessGame, player::Player, final_state::FinalState};
 
 #[wasm_bindgen]
 extern "C" {
@@ -91,10 +91,10 @@ impl GameState {
         if let Some(act) = 
             match self.turn {
                 White => {
-                    self.white.run(&self.game).into()
+                    self.white.run(&self.game)
                 }
                 Black => {
-                    self.black.run(&self.game).into()
+                    self.black.run(&self.game)
                 }
             }
         {
@@ -154,13 +154,13 @@ pub fn setup(canvas: web_sys::HtmlCanvasElement,
     let _ = setup_descriptions(descriptions);
     let _ = setup_select(&white_select);
     let _ = setup_select(&black_select);
-    let game = GameState::new(canvas,
+    
+   GameState::new(canvas,
                               status,
                               white_select,
                               black_select,
                               Strategy::Random,
-                              Strategy::Random);
-   game 
+                              Strategy::Random) 
 }
 
 
@@ -178,7 +178,7 @@ fn setup_select(select: &web_sys::HtmlSelectElement) -> Result<(), JsValue> {
 
 fn get_selection(select: &web_sys::HtmlSelectElement) -> Strategy {
     let name = select.value();
-    strategy_map().get(&name).unwrap().clone()
+    *strategy_map().get(&name).unwrap()
 }
 
 fn setup_descriptions(descriptions: web_sys::HtmlElement) -> Result<(), JsValue> {

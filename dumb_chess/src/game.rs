@@ -727,19 +727,17 @@ pub fn play_game(black_player: Strategy, white_player: Strategy) -> FinalState {
         println!("{}", game);
         if let Some(state) = game.check_state() {
             return state;
+        } else if let Some(act) = if white_turn {
+            white_player.run(&game)
         } else {
-            if let Some(act) = if white_turn {
-                white_player.run(&game)
-            } else {
-                black_player.run(&game)
-            } {
-                white_turn = !white_turn;
-                println!("{:?} chose: {:?}", game.turn, act);
-                game = game.step(act);
-            } else {
-                println!("Couldn't make a move, but couldn't determine that ahead of time for some reason");
-                return Draw;
-            }
+            black_player.run(&game)
+        } {
+            white_turn = !white_turn;
+            println!("{:?} chose: {:?}", game.turn, act);
+            game = game.step(act);
+        } else {
+            println!("Couldn't make a move, but couldn't determine that ahead of time for some reason");
+            return Draw;
         }
     }
 }

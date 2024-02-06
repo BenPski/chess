@@ -6,7 +6,7 @@ use rand::{thread_rng, seq::SliceRandom};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::piece::{PieceData, ID};
-use crate::player::{Player, self};
+use crate::player::{Player};
 use crate::{game::ChessGame, action::Action};
 use crate::piece::Piece::{*};
 
@@ -363,13 +363,13 @@ impl EvalGame for CountMoves {
 }
 
 impl EvalGame for MoveAmount {
-    fn eval(&self, action: Action, game: &ChessGame) -> f32 {
+    fn eval(&self, _action: Action, game: &ChessGame) -> f32 {
         game.possible_moves(self.0).len() as f32
     }
 }
 
 impl EvalGame for KingMoves {
-    fn eval(&self, action: Action, game: &ChessGame) -> f32 {
+    fn eval(&self, action: Action, _game: &ChessGame) -> f32 {
         match action {
             ATake(m) => {
                 if matches!(m.piece, King(_, p) if p == self.0) { 1.0 } else { 0.0 }
@@ -377,14 +377,14 @@ impl EvalGame for KingMoves {
             AMove(m) => {
                 if matches!(m.piece, King(_, p) if p == self.0) { 1.0 } else { 0.0 }
             }
-            ACastle(m) => 1.0,
+            ACastle(_m) => 1.0,
             _ => 0.0
         }
     }
 }
 
 impl EvalGame for QueenMoves {
-    fn eval(&self, action: Action, game: &ChessGame) -> f32 {
+    fn eval(&self, action: Action, _game: &ChessGame) -> f32 {
         match action {
             ATake(m) => {
                 if matches!(m.piece, Queen(_, _)) { 1.0 } else { 0.0 }
@@ -404,7 +404,7 @@ impl EvalGame for QueenMoves {
 }
 
 impl EvalGame for InCheck {
-    fn eval(&self, action: Action, game: &ChessGame) -> f32 {
+    fn eval(&self, _action: Action, game: &ChessGame) -> f32 {
         if game.in_check(self.0) {
             1.0
         } else {
