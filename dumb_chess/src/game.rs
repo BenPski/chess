@@ -54,18 +54,18 @@ impl ChessBoard {
         self.board[((8*coord.row)+(coord.col)) as usize] = p;
     }
 
-    pub fn pieces(&self) -> Vec<PieceData> {
+    pub fn pieces<'a>(&'a self) -> impl Iterator<Item=PieceData> + 'a {
         Coord::all_coords().map(|coord| {
             let piece = self.get(coord);
             PieceData::new(piece, coord)
-        }).collect()
+        })
     }
 
-    pub fn pieces_for(&self, player: Player) -> Vec<PieceData> {
+    pub fn pieces_for<'a>(&'a self, player: Player) -> impl Iterator<Item=PieceData> + 'a {
         self.pieces().into_iter()
-            .filter(|p| {
+            .filter(move |p| {
                 p.piece.owner().map_or(false, |x| x == player)
-            }).collect()
+            })
     }
 }
 
@@ -248,26 +248,19 @@ impl ChessGame {
     // if the king is in check then the only available moves are the ones that
     // remove check
     // also cannot make a move that leaves the player in check
-    pub fn possible_moves(&self, player: Player) -> Vec<Action> {
-        let moves = self.available_moves(player);
-        // filter out moves that leave the player in check
-        moves.into_iter().filter(|m| {
+    pub fn possible_moves<'a>(&'a self, player: Player) -> impl Iterator<Item=Action> + 'a {
+        self.available_moves(player)
+            .filter(move |m| {
             let g = self.step(*m);
             !g.in_check(player)
-        }).collect()
-    }
+        })
+     }
 
     // usually don't want to call this
-    pub fn available_moves(&self, player: Player) -> Vec<Action> {
-        let mut moves = Vec::new();
-        let pieces = self.board.pieces_for(player);
-        for piece in pieces {
-            let all_moves = self.calc_moves(piece);
-            moves.extend(all_moves);
-        }
-        moves
-    }
-    
+    pub fn available_moves<'a>(&'a self, player: Player) -> impl Iterator<Item=Action> + 'a {
+        self.board.pieces_for(player)
+            .flat_map(|piece| self.calc_moves(piece))
+    } 
     
     fn calc_moves(&self, piece: PieceData) -> Vec<Action> {
         match piece.piece {
@@ -630,7 +623,7 @@ impl ChessGame {
     // this is intended to be used after stepping as a check
     
     pub fn check_state(&self) -> Option<FinalState> {
-        let acts = self.possible_moves(self.turn);
+        let acts: Vec<_> = self.possible_moves(self.turn).collect();
         if acts.is_empty() {
             if self.in_check(self.turn) {
                 return Some(Win(self.turn.toggle()));
@@ -720,13 +713,13 @@ impl Default for ChessGame {
     }
 }
 
-pub fn play_game(black_player: Strategy, white_player: Strategy) -> FinalState {
+pub fn play_game(black_player: &Strategy, white_player: &Strategy) -> (ChessGame, FinalState) {
     let mut game = ChessGame::new();
     let mut white_turn = true;
     loop {
         println!("{}", game);
         if let Some(state) = game.check_state() {
-            return state;
+            return (game, state);
         } else if let Some(act) = if white_turn {
             white_player.run(&game)
         } else {
@@ -737,7 +730,7 @@ pub fn play_game(black_player: Strategy, white_player: Strategy) -> FinalState {
             game = game.step(act);
         } else {
             println!("Couldn't make a move, but couldn't determine that ahead of time for some reason");
-            return Draw;
+            return (game, Draw);
         }
     }
 }

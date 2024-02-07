@@ -2,7 +2,7 @@ use clap::Parser;
 use dumb_chess::game::play_game;
 use dumb_chess::strategy::*;
 
-use enum_iterator::all;
+
 
 #[derive(Parser)]
 #[command(author, version, about)]
@@ -54,22 +54,26 @@ fn main() {
     
     if cli.list {
         println!("Available strategies:");
+        /*
         for s in all::<Strategy>() {
             println!("{} - {}", s.name(), s.description());
         }
+        */
     } else {
         let white = cli.white_player;
         let black = cli.black_player;
 
         if let (Some(white_strat), Some(black_strat)) = (strategy_map().get(&white), strategy_map().get(&black)) {
-            let state = play_game(*black_strat, *white_strat);
+            let (_, state) = play_game(black_strat, white_strat);
             println!("Final state: {:?}", state);
         } else {
             println!("Could not find one of the given strategies: {} + {}", white, black);
             println!("Options for strategies are:");
+            /*
             for s in all::<Strategy>() {
                 println!("{}", s.name());
             }
+            */
         }
     }
 }

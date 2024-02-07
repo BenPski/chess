@@ -45,7 +45,7 @@ trait CombineValues {
 // a simple lookahead strategy that only considers the given players moves for 
 // simplicities sake and because the other player's strategy is unknown
 fn strategy(depth: u8, player: Player, game: &ChessGame, eval: &impl EvalGame, choose: &impl ChooseMove, combine: &impl CombineValues) -> Option<Action> {
-    let mut moves = game.possible_moves(player);
+    let mut moves: Vec<Action> = game.possible_moves(player).collect();
     moves.shuffle(&mut thread_rng());
     if moves.is_empty() {
         None
@@ -66,7 +66,7 @@ fn strategy_lookahead(depth: u8, player: Player, act: Action, game: &ChessGame, 
     if depth == 0 {
         eval.eval(act, &g)
     } else {
-        let mut moves = g.possible_moves(player);
+        let mut moves: Vec<Action> = g.possible_moves(player).collect();
         moves.shuffle(&mut thread_rng());
         if moves.is_empty() {
             eval.no_moves()
@@ -182,7 +182,7 @@ impl Strategy {
     pub fn run(&self, game: &ChessGame) -> Option<Action> {
         match self {
             Random           => {
-                let moves = game.possible_moves(game.turn);
+                let moves: Vec<Action> = game.possible_moves(game.turn).collect();
                 if !moves.is_empty() {
                     Some(*moves.choose(&mut thread_rng()).unwrap())
                 } else {
@@ -269,7 +269,7 @@ impl Strategy {
 
 // since there is a default sort, just use that sort
 pub fn sorted_player(game: &ChessGame) -> Option<Action> {
-    let mut moves = game.possible_moves(game.turn);
+    let mut moves: Vec<Action> = game.possible_moves(game.turn).collect();
     if !moves.is_empty() {
         moves.sort();
         Some(moves[0])
@@ -279,7 +279,7 @@ pub fn sorted_player(game: &ChessGame) -> Option<Action> {
 }
 
 pub fn rev_sorted_player(game: &ChessGame) -> Option<Action> {
-    let mut moves = game.possible_moves(game.turn);
+    let mut moves: Vec<Action> = game.possible_moves(game.turn).collect();
     if !moves.is_empty() {
         moves.sort();
         moves.reverse();
@@ -364,7 +364,7 @@ impl EvalGame for CountMoves {
 
 impl EvalGame for MoveAmount {
     fn eval(&self, _action: Action, game: &ChessGame) -> f32 {
-        game.possible_moves(self.0).len() as f32
+        game.possible_moves(self.0).count() as f32
     }
 }
 
@@ -559,7 +559,25 @@ fn variance(values: &[f32]) -> f32 {
     var/count
 }
 
-// dynamic dispatch way to remind me not to try it again
+// dynamic dispatch version
+// not really sure which is "better"
+// at this point in time the enum/switch pattern and this version seem
+// pretty similar
+// other alternative is maybe a message passing style where there is a handler
+// and the "message" branches between name/description/run
+// trait Strategy {
+//   fn call(message: Message, res: &mut _) {
+//   }
+// }
+// enum Message {
+//   Name,
+//   Description,
+//   Run,
+// }
+// message passing seems unpleasant at first glance, but I could be wrong
+// 
+// the main performance bottleneck was the vector allocation, so the difference
+// in behaviors isn't obvious yet
 /*
 pub trait Strategy {
     fn name() -> &'static str;
@@ -739,6 +757,11 @@ impl Strategy for Determined {
         strategy(1, game.turn, game, &CountMoves, &MaxChoose, &MaxCombine)
     }
 }
+
+pub fn strategy_map() -> HashMap<String, impl Strategy> {
+    let mut map = HashMap::new();
+    map.insert(Random::name().to_string(), Random);
+    
+    map
+}
 */
-
-
